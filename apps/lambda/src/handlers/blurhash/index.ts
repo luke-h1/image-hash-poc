@@ -4,7 +4,7 @@ import {
 } from 'aws-lambda';
 import axios from 'axios';
 import { encode } from 'blurhash';
-import Jimp from 'jimp';
+import { Jimp } from 'jimp';
 
 const blurHashHandler = async (
   body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
