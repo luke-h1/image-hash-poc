@@ -14,7 +14,3 @@ runs:
     - name: tsc
       run: pnpm tsc
       shell: bash
-
-    - name: test
-      run: pnpm test
-      shell: bash

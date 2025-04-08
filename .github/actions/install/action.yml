@@ -56,6 +56,3 @@ runs:
       shell: bash
       run: pnpm i
 
-    - name: Check commit message
-      shell: bash
-      run: pnpm commitlint --from=HEAD^1

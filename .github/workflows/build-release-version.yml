@@ -14,7 +14,6 @@ permissions:
 
 env:
   PNPM_VERSION: 9.12.3
-  # terraform variables; TODO: move to secretmanager
   TF_VAR_env: live
   TF_VAR_zone_id: ${{ secrets.LIVE_ZONE_ID }}
   TF_VAR_root_domain: lhowsam.com
@@ -45,15 +44,6 @@ jobs:
       - name: Validate
         uses: ./.github/actions/validate
 
-      - name: Changelogs
-        uses: ./.github/actions/changelog
-        with:
-          prerelease: false
-          publish: true
-
-      - name: fetch latest commits
-        run: git fetch && git pull
-
       - name: Deploy
         uses: ./.github/actions/deploy
         with:
@@ -63,54 +53,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  discord-message:
-    runs-on: ubuntu-latest
-    if: success()
-    needs: release
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Fetch latest commits
-        run: git fetch && git pull
-
-      - name: get package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: apps/lambda
-
-      - name: Discord success notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: ':white_check_mark: live release of blurhash-lambda `${{ steps.package-version.outputs.current-version }}` successful :white_check_mark:'
-
-  discord-fail-message:
-    runs-on: ubuntu-latest
-    if: failure()
-    needs: release
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: apps/lambda
-
-      - name: Discord fail notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: ':red_circle: live release of blurhash-lambda `${{ steps.package-version.outputs.current-version }}` failed :red_circle: URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
