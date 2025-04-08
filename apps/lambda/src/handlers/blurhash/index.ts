@@ -9,7 +9,7 @@ import { Jimp } from 'jimp';
 
 const blurHashHandler = async (
   _body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
-  qs: APIGatewayProxyEventQueryStringParameters,
+  qs: APIGatewayProxyEventQueryStringParameters | null,
 ): Promise<string> => {
   try {
     console.log('Query String Parameters >', qs);
