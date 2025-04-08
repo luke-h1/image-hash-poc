@@ -10,6 +10,7 @@ const blurHashHandler = async (
   body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
 ): Promise<string> => {
   try {
+    console.log('BODY >', body);
     // Parse the body to extract the URL
     const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
     const imageUrl = parsedBody?.url;
