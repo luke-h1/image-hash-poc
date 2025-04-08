@@ -4,6 +4,7 @@ import versionHandler from '@lambda/handlers/version';
 import {
   APIGatewayEventDefaultAuthorizerContext,
   APIGatewayProxyEventBase,
+  APIGatewayProxyEventQueryStringParameters,
 } from 'aws-lambda';
 
 export type RoutePath = '/api/health' | '/api/version' | '/api/blurhash';
@@ -11,6 +12,7 @@ export type RoutePath = '/api/health' | '/api/version' | '/api/blurhash';
 const routes = async (
   path: RoutePath,
   body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
+  queryStringParameters: APIGatewayProxyEventQueryStringParameters | null,
 ) => {
   let response: unknown;
 
@@ -27,7 +29,7 @@ const routes = async (
       break;
 
     case '/api/blurhash':
-      response = await blurHashHandler(body);
+      response = await blurHashHandler(body, queryStringParameters);
       break;
 
     default:

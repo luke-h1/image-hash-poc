@@ -1,22 +1,24 @@
 import {
   APIGatewayProxyEventBase,
   APIGatewayEventDefaultAuthorizerContext,
+  APIGatewayProxyEventQueryStringParameters,
 } from 'aws-lambda';
 import axios from 'axios';
 import { encode } from 'blurhash';
 import { Jimp } from 'jimp';
 
 const blurHashHandler = async (
-  body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
+  _body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
+  qs: APIGatewayProxyEventQueryStringParameters,
 ): Promise<string> => {
   try {
-    console.log('BODY >', body);
-    // Parse the body to extract the URL
-    const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
-    const imageUrl = parsedBody?.url;
+    console.log('Query String Parameters >', qs);
+
+    // Extract the image URL from the query string
+    const imageUrl = qs?.url;
 
     if (!imageUrl) {
-      throw new Error('Image URL is required in the body');
+      throw new Error('Image URL is required in the query string');
     }
 
     // Fetch the image using axios
@@ -37,7 +39,7 @@ const blurHashHandler = async (
   } catch (error) {
     console.error('Error generating BlurHash:', error);
     return JSON.stringify({
-      // @ts-expect-error null null null
+      // @ts-expect-error null eeeeee
       error: error.message || 'unknown',
       status: 'FAILED',
     });
