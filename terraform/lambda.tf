@@ -21,7 +21,6 @@ resource "aws_iam_role" "lambda_exec" {
 }
 
 
-# Attach the sharp layer to the Lambda function
 resource "aws_lambda_function" "lambda" {
   function_name    = "${var.project_name}-lambda-${var.env}"
   runtime          = "nodejs22.x"
@@ -43,10 +42,6 @@ resource "aws_lambda_function" "lambda" {
   tags = merge(var.tags, {
     Environment = var.env,
   })
-
-  layers = [
-    aws_lambda_layer_version.sharp_layer.arn
-  ]
 }
 
 resource "aws_cloudwatch_log_group" "lambda_logs" {
