@@ -3,12 +3,6 @@ variable "env" {
   description = "The environment to deploy to"
 }
 
-variable "env_vars" {
-  type        = map(string)
-  description = "The environment variables to set on lambda"
-  nullable    = true
-}
-
 variable "zone_id" {
   type        = string
   description = "The zone id for the route53 record"

@@ -16,15 +16,13 @@ concurrency:
   cancel-in-progress: true
 env:
   PNPM_VERSION: 9.12.3
-  # terraform variables; TODO: move to secret manager
-  TF_VAR_env: ${{ github.event.inputs.env  == 'staging' && 'staging' || 'live' }}
-  TF_VAR_env_vars: ${{ secrets.LIVE_ENV_VARS }}
+  TF_VAR_env: 'live'
   TF_VAR_zone_id: ${{ secrets.LIVE_ZONE_ID }}
   TF_VAR_root_domain: lhowsam.com
   TF_VAR_sub_domain: blurhash.lhowsam.com
-  TF_VAR_private_key: ${{ github.event.inputs.env  == 'staging' && secrets.STAGING_PRIVATE_KEY || secrets.LIVE_PRIVATE_KEY }}
-  TF_VAR_certificate_body: ${{ github.event.inputs.env  == 'staging' && secrets.STAGING_CERTIFICATE_BODY || secrets.LIVE_CERTIFICATE_BODY }}
-  TF_VAR_certificate_chain: ${{ github.event.inputs.env  == 'staging' && secrets.STAGING_CERTIFICATE_CHAIN || secrets.LIVE_CERTIFICATE_CHAIN }}
+  TF_VAR_private_key: ${{ secrets.LIVE_PRIVATE_KEY }}
+  TF_VAR_certificate_body: ${{ secrets.LIVE_CERTIFICATE_BODY }}
+  TF_VAR_certificate_chain: ${{ secrets.CERT_CHAIN }}
   TF_VAR_deployed_by: ${{ github.actor }}
 
 jobs:
@@ -45,54 +43,3 @@ jobs:
           environment: ${{ github.event.inputs.env }}
           aws-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-  discord-message:
-    runs-on: ubuntu-latest
-    needs: destroy
-    if: success()
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Fetch latest commits
-        run: git fetch && git pull
-
-      - name: get package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: apps/lambda
-
-      - name: Discord success notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: ':white_check_mark: Destroy of blurhash-lambda (${{ github.event.inputs.env }}) - ${{ steps.package-version.outputs.current-version }} successful :white_check_mark:'
-
-  discord-fail-message:
-    runs-on: ubuntu-latest
-    needs: destroy
-    if: failure()
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: get package version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
-        with:
-          path: apps/lambda
-
-      - name: Discord fail notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        uses: Ilshidur/action-discord@master
-        with:
-          args: ':red_circle: Destroy of blurhash-lambda (${{ github.event.inputs.env }}) - ${{ github.head_ref }} failed :red_circle: URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
