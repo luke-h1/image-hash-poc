@@ -1,3 +1,4 @@
+import { createHash } from '@lambda/utils/createHash';
 import {
   APIGatewayProxyEventBase,
   APIGatewayEventDefaultAuthorizerContext,
@@ -9,6 +10,12 @@ const blurHashHandler = async (
   // eslint-disable next-line
   console.log('body ->', body);
 
-  return JSON.stringify({});
+  // @ts-expect-error types wrong
+  const hash = createHash(body.url);
+
+  return JSON.stringify({
+    hash,
+    status: 'OK',
+  });
 };
 export default blurHashHandler;
