@@ -1,0 +1,107 @@
+name: Deploy
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'live'
+        type: choice
+        options:
+          - live
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  PNPM_VERSION: 9.12.3
+  TF_VAR_env: live
+  TF_VAR_zone_id: ${{ secrets.LIVE_ZONE_ID }}
+  TF_VAR_root_domain: lhowsam.com
+  TF_VAR_sub_domain: blurhash.lhowsam.com
+  TF_VAR_private_key: ${{ secrets.LIVE_PRIVATE_KEY }}
+  TF_VAR_certificate_body: ${{ secrets.LIVE_CERTIFICATE_BODY }}
+  TF_VAR_certificate_chain: ${{ secrets.LIVE_CERTIFICATE_CHAIN }}
+  TF_VAR_deployed_by: ${{ github.actor }}
+  TF_VAR_git_sha: ${{ github.sha }}
+
+jobs:
+  deploy:
+    name: Deploy ${{ github.event.inputs.env }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Fetch latest commits
+        run: git fetch && git pull
+
+      - name: Install
+        uses: ./.github/actions/install
+
+      - name: Validate
+        uses: ./.github/actions/validate
+
+      - name: Changelogs
+        uses: ./.github/actions/changelog
+
+      - name: Deploy
+        uses: ./.github/actions/deploy
+        with:
+          environment: ${{ github.event.inputs.env }}
+          aws-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  discord-message:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: Fetch latest commits
+        run: git fetch -u origin main && git pull --rebase origin main
+
+      - name: get package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/lambda
+
+      - name: Discord success notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: ':white_check_mark: release of blurhash-lambda (${{ github.event.inputs.env }}) - ${{ steps.package-version.outputs.current-version }} successful :white_check_mark:'
+
+  discord-fail-message:
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+
+      - name: get package version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: apps/lambda
+
+      - name: Discord fail notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: ':red_circle: Build of release blurhash-lambda (${{ github.event.inputs.env }}) - ${{ github.head_ref }} failed :red_circle: URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'

@@ -1,0 +1,65 @@
+{
+  "name": "root",
+  "version": "0.0.0-monorepo",
+  "engines": {
+    "pnpm": "9.12.3"
+  },
+  "packageManager": "pnpm@9.12.3",
+  "scripts": {
+    "alphabetize": "node scripts/alphabetizePackageJson.js",
+    "build": "turbo run build",
+    "clean": "pnpm -r --parallel exec rm -rf node_modules && rm -rf node_modules",
+    "commit": "cz",
+    "format": "prettier --write \"apps/**/*.{js,jsx,ts,tsx,css,scss,html}\"",
+    "format:check": "prettier --list-different \"apps/**/*.{js,jsx,ts,tsx,css,scss,html}\"",
+    "lint": "eslint --fix --ext .ts,.tsx,.js,.jsx .",
+    "prepare": "husky",
+    "test": "pnpm -r --no-bail test",
+    "test:ci": "pnpm -r --no-bail --aggregate-output --reporter=append-only test:ci",
+    "test:snapshot": "pnpm -r --no-bail test:snapshot",
+    "tsc": "pnpm -r --aggregate-output --reporter=append-only --no-bail tsc"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.6.1",
+    "@commitlint/config-conventional": "^19.6.0",
+    "@types/node": "20.14.10",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "commitizen": "4.3.1",
+    "conventional-changelog-angular-all": "^1.7.0",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.3",
+    "eslint-plugin-import": "^2.31.0",
+    "git-cz": "^4.9.0",
+    "husky": "^9.1.7",
+    "lint-staged": "15.3.0",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint"
+    ],
+    "*.{js,jsx,ts,tsx,css,scss,html}": [
+      "prettier --write"
+    ],
+    "package.json": [
+      "node scripts/alphabetizePackageJson.js"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && npx cz --hook || true"
+    }
+  },
+  "dependencies": {
+    "lerna": "^8.1.9"
+  }
+}

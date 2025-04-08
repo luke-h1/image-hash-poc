@@ -1,0 +1,12 @@
+{
+  "npmClient": "pnpm",
+  "packages": ["apps/*"],
+  "command": {
+    "version": {
+      "conventionalCommits": true,
+      "message": "chore(release): publish [skip ci]",
+      "allowBranch": ["main"]
+    }
+  },
+  "version": "0.3.54"
+}

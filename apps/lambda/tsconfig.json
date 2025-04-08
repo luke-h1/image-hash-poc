@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@lambda/*": ["./src/*"],
+      "@lambda-test/*": ["src/test/*"]
+    },
+    "incremental": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "build"]
+}
