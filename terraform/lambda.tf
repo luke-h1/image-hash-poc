@@ -47,7 +47,7 @@ resource "aws_lambda_function" "lambda" {
   # }
   description   = "blur hash Lambda ${var.env}"
   memory_size   = 128
-  architectures = ["arm64"]
+  architectures = ["x86_64"]
   environment {
     variables = {
       DEPLOYED_AT = timestamp()
