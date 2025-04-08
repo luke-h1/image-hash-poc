@@ -4,15 +4,15 @@ import {
 } from 'aws-lambda';
 import axios from 'axios';
 import { encode } from 'blurhash';
-import { Jimp } from 'jimp';
+import Jimp from 'jimp';
 
 const blurHashHandler = async (
   body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
 ): Promise<string> => {
   try {
     // Parse the body to extract the URL
-    // @ts-expect-error null null null
-    const imageUrl = body.url;
+    const parsedBody = typeof body === 'string' ? JSON.parse(body) : body;
+    const imageUrl = parsedBody?.url;
 
     if (!imageUrl) {
       throw new Error('Image URL is required in the body');
@@ -36,7 +36,8 @@ const blurHashHandler = async (
   } catch (error) {
     console.error('Error generating BlurHash:', error);
     return JSON.stringify({
-      error: 'unknown',
+      // @ts-expect-error null null null
+      error: error.message || 'unknown',
       status: 'FAILED',
     });
   }
