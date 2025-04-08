@@ -1,19 +1,3 @@
-# Create a Lambda Layer for sharp
-data "archive_file" "sharp_layer" {
-  type        = "zip"
-  source_dir  = "${path.module}/../apps/sharp"
-  output_path = "${path.module}/../sharp.zip"
-}
-
-resource "aws_lambda_layer_version" "sharp_layer" {
-  layer_name               = "${var.project_name}-sharp-layer-${var.env}"
-  compatible_runtimes      = ["nodejs22.x"]
-  compatible_architectures = ["x86_64"]
-  filename                 = data.archive_file.sharp_layer.output_path
-  source_code_hash         = data.archive_file.sharp_layer.output_base64sha256
-  description              = "Lambda Layer for sharp library"
-}
-
 data "archive_file" "lambda_archive" {
   type        = "zip"
   source_dir  = "${path.module}/../apps/lambda/dist"
