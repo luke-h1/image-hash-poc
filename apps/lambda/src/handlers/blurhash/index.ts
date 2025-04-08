@@ -11,8 +11,8 @@ const blurHashHandler = async (
 ): Promise<string> => {
   try {
     // Parse the body to extract the URL
-    const parsedBody = JSON.parse(body || '{}');
-    const imageUrl = parsedBody.url;
+    // @ts-expect-error null null null
+    const imageUrl = body.url;
 
     if (!imageUrl) {
       throw new Error('Image URL is required in the body');
