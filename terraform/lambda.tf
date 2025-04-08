@@ -14,6 +14,29 @@ resource "aws_lambda_layer_version" "sharp_layer" {
   description              = "Lambda Layer for sharp library"
 }
 
+data "archive_file" "lambda_archive" {
+  type        = "zip"
+  source_dir  = "${path.module}/../apps/lambda/dist"
+  output_path = "${path.module}/../lambda.zip"
+}
+
+resource "aws_iam_role" "lambda_exec" {
+  name = "${var.project_name}-${var.env}-exec-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Sid    = ""
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+      }
+    ]
+  })
+}
+
+
 # Attach the sharp layer to the Lambda function
 resource "aws_lambda_function" "lambda" {
   function_name    = "${var.project_name}-lambda-${var.env}"
