@@ -9,13 +9,13 @@ export const handler: Handler = async (
   event: APIGatewayProxyEvent,
   context: Context,
 ) => {
-  const { path } = event;
+  const { path, queryStringParameters } = event;
 
   // AWSXRay.enableAutomaticMode();
 
   try {
     return await Promise.race([
-      routes(path as RoutePath, event.body),
+      routes(path as RoutePath, event.body, queryStringParameters),
       lambdaTimeout(context),
     ]).then(value => value);
   } catch (e) {
