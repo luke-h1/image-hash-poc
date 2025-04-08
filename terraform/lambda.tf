@@ -55,7 +55,7 @@ resource "aws_lambda_function" "lambda" {
   memory_size      = 128
   architectures    = ["x86_64"]
   tracing_config {
-    mode = "active"
+    mode = "Active"
   }
   environment {
     variables = {
