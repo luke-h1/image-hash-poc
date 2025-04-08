@@ -1,7 +1,7 @@
 # Create a Lambda Layer for sharp
 data "archive_file" "sharp_layer" {
   type        = "zip"
-  source_dir  = "${path.module}/../sharp"
+  source_dir  = "${path.module}/../apps/sharp"
   output_path = "${path.module}/../sharp.zip"
 }
 
