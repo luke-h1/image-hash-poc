@@ -1,4 +1,11 @@
-const blurHashHandler = async (body: string): Promise<string> => {
+import {
+  APIGatewayProxyEventBase,
+  APIGatewayEventDefaultAuthorizerContext,
+} from 'aws-lambda';
+
+const blurHashHandler = async (
+  body: APIGatewayProxyEventBase<APIGatewayEventDefaultAuthorizerContext>['body'],
+): Promise<string> => {
   // eslint-disable next-line
   console.log('body ->', body);
 
