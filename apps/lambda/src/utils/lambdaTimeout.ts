@@ -13,6 +13,6 @@ const lambdaTimeout = (context: Context) =>
           action: 'timeout',
         }),
       );
-    }, context.getRemainingTimeInMillis() - 1000);
+    }, context.getRemainingTimeInMillis() - 2000);
   });
 export default lambdaTimeout;

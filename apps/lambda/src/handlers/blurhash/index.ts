@@ -27,7 +27,9 @@ const blurHashHandler = async (
 
     // Use Jimp to process the image
     const image = await Jimp.read(imageBuffer);
-    const { width, height, data } = image.bitmap;
+
+    const resizedImage = image.resize({ w: 32 });
+    const { width, height, data } = resizedImage.bitmap;
 
     // Generate the BlurHash
     const blurHash = encode(new Uint8ClampedArray(data), width, height, 4, 4);
@@ -39,7 +41,7 @@ const blurHashHandler = async (
   } catch (error) {
     console.error('Error generating BlurHash:', error);
     return JSON.stringify({
-      // @ts-expect-error null eeeeee
+      // @ts-expect-error testtestest
       error: error.message || 'unknown',
       status: 'FAILED',
     });
